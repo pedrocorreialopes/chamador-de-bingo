@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chamador de Bingo Digital 75</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="theme-dark">
+  <div class="app" id="appRoot">
+    <header class="topbar card">
+      <div>
+        <h1>🎱 Chamador de Bingo Digital</h1>
+        <p class="subtitle">Bingo 75 • Profissional • Offline</p>
+      </div>
+      <div class="top-actions">
+        <button id="btnSettings" class="btn secondary">⚙️ Configurações</button>
+        <button id="btnRecover" class="btn secondary">🧩 Recuperar Último Jogo</button>
+        <button id="btnTelo" class="btn primary">🖥️ Modo Telão</button>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="draw-panel card" aria-label="Número sorteado">
+        <h2 class="section-title">Número Sorteado</h2>
+        <div class="current-ball" id="currentBall" aria-live="polite">
+          <div class="letter" id="currentLetter">-</div>
+          <div class="number" id="currentNumber">--</div>
+          <div class="label">BOLA SORTEADA</div>
+        </div>
+        <div class="draw-meta">
+          <div><strong>Anterior:</strong> <span id="prevDraw">--</span></div>
+          <div><strong>Última bola:</strong> <span id="lastDraw">--</span></div>
+          <div><strong>Próxima em:</strong> <span id="countdown">--</span></div>
+        </div>
+
+        <div class="controls">
+          <button id="btnStart" class="btn success">INICIAR JOGO</button>
+          <button id="btnPause" class="btn warning">PAUSAR</button>
+          <button id="btnResume" class="btn success">CONTINUAR</button>
+          <button id="btnDraw" class="btn primary">SORTEAR PRÓXIMA BOLA</button>
+          <button id="btnFinish" class="btn danger">FINALIZAR JOGO</button>
+          <button id="btnNewGame" class="btn danger-soft">NOVO JOGO</button>
+          <button id="btnPedra" class="btn accent">PEDRA MAIOR</button>
+        </div>
+      </section>
+
+      <section class="board-panel card" aria-label="Tabuleiro de Bingo 75">
+        <h2 class="section-title">Tabuleiro Oficial Bingo 75</h2>
+        <div class="bingo-grid" id="bingoGrid"></div>
+      </section>
+
+      <section class="history-panel card" aria-label="Histórico">
+        <h2 class="section-title">Histórico de Sorteios</h2>
+        <div class="stats-cards" id="statsCards">
+          <article class="stat">
+            <span>Total sorteadas</span>
+            <strong id="statDrawn">0</strong>
+          </article>
+          <article class="stat">
+            <span>Restantes</span>
+            <strong id="statRemain">75</strong>
+          </article>
+          <article class="stat">
+            <span>Concluído</span>
+            <strong id="statPct">0%</strong>
+          </article>
+          <article class="stat">
+            <span>Tempo de partida</span>
+            <strong id="statTime">00:00</strong>
+          </article>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar"><div id="progressFill"></div></div>
+        </div>
+
+        <div class="history-list" id="historyList"></div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="settings-drawer" id="settingsDrawer" aria-hidden="true">
+    <div class="settings-header">
+      <h3>Painel de Configurações</h3>
+      <button id="closeSettings" class="btn icon">✖</button>
+    </div>
+    <div class="settings-body">
+      <label>Intervalo (segundos)
+        <select id="cfgIntervalPreset">
+          <option value="5">5s</option>
+          <option value="8">8s</option>
+          <option value="10" selected>10s</option>
+          <option value="15">15s</option>
+          <option value="20">20s</option>
+          <option value="30">30s</option>
+        </select>
+      </label>
+
+      <label>Intervalo personalizado (segundos)
+        <input id="cfgIntervalCustom" type="number" min="3" max="120" step="1" placeholder="Opcional" />
+      </label>
+
+      <label class="switch"><input id="cfgAuto" type="checkbox" checked /> Sorteio automático</label>
+      <label class="switch"><input id="cfgSound" type="checkbox" checked /> Sons ligados</label>
+      <label>Volume
+        <input id="cfgVolume" type="range" min="0" max="1" step="0.05" value="0.4" />
+      </label>
+      <label class="switch"><input id="cfgAnim" type="checkbox" checked /> Animações</label>
+      <label>Velocidade de animação
+        <input id="cfgAnimSpeed" type="range" min="0.5" max="2" step="0.1" value="1" />
+      </label>
+      <label>Exibição de histórico
+        <select id="cfgHistoryMode">
+          <option value="all">Completo</option>
+          <option value="last20">Últimos 20</option>
+          <option value="last10">Últimos 10</option>
+        </select>
+      </label>
+      <label class="switch"><input id="cfgConfirmNew" type="checkbox" checked /> Confirmar novo jogo</label>
+      <label class="switch"><input id="cfgAutoRecovery" type="checkbox" checked /> Recuperação automática</label>
+      <label>Tema visual
+        <select id="cfgTheme">
+          <option value="dark" selected>Escuro Profissional</option>
+          <option value="midnight">Azul Midnight</option>
+          <option value="graphite">Grafite</option>
+        </select>
+      </label>
+      <button id="saveSettings" class="btn success full">Salvar Configurações</button>
+    </div>
+  </aside>
+
+  <dialog id="recoverDialog">
+    <h3>Recuperar Último Jogo</h3>
+    <div id="recoverInfo"></div>
+    <menu>
+      <button id="recoverDo" class="btn success">RESTAURAR PARTIDA</button>
+      <button id="recoverCancel" class="btn secondary">Cancelar</button>
+    </menu>
+  </dialog>
+
+  <dialog id="pedraDialog" class="pedra-dialog">
+    <h3>⚡ Pedra Maior — Desempate</h3>
+    <p>Informe os concorrentes empatados (mínimo 2):</p>
+    <div class="pedra-add">
+      <input id="pedraNameInput" type="text" placeholder="Nome do concorrente" />
+      <button id="pedraAdd" class="btn primary">Adicionar</button>
+    </div>
+    <div id="pedraList" class="pedra-list"></div>
+    <div class="pedra-actions">
+      <button id="pedraDraw" class="btn accent">Sortear Vencedor</button>
+      <button id="pedraReset" class="btn warning">Limpar Lista</button>
+      <button id="pedraClose" class="btn secondary">Fechar</button>
+    </div>
+    <div id="pedraWinner" class="pedra-winner"></div>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
